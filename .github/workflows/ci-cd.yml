@@ -1,0 +1,27 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: sykang808/github-actions-common/.github/workflows/test.yml@master
+    with:
+      python_version: "3.9"
+      requirements_file: "requirements.txt"
+      test_command: "pytest"
+      working_directory: "."
+
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    uses: sykang808/github-actions-common/.github/workflows/build.yml@master
+    with:
+      image_name: fastapi-sample
+      image_tag: ${{ github.sha }}
+      dockerfile_path: "./Dockerfile"
+    secrets: inherit
